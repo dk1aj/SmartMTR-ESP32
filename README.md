@@ -200,6 +200,15 @@ Not yet verified on hardware:
 - Touch orientation.
 - Meters over the relay's UDP path. No CTR2 has exercised that path on hardware yet.
 
+## Development workflow
+
+Repository-specific contribution rules are in [AGENTS.md](AGENTS.md). Project
+objectives and evidence-backed roadmap notes are in [GOALS.md](GOALS.md) and
+[PLANS.md](PLANS.md); reusable maintenance prompts are in
+[PROMPTS.md](PROMPTS.md). See [architecture](docs/architecture.md) for component
+ownership and [testing](docs/TESTING.md) for the checks and their evidence
+boundaries.
+
 ## License
 
 GPL-3.0; see [LICENSE](LICENSE). The two `ctr2_link` files are MIT. The design
