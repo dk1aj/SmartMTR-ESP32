@@ -130,7 +130,10 @@ static void draw_row(int i)
     const menu_item_t *it = &g_menu_items[i];
     row_t *r = &s_rows[i];
     const knob_slice_t *s = focus_slice();
-    lv_obj_set_hidden(r->row, !menu_item_visible(it, s));
+    if (menu_item_visible(it, s))
+        lv_obj_clear_flag(r->row, LV_OBJ_FLAG_HIDDEN);
+    else
+        lv_obj_add_flag(r->row, LV_OBJ_FLAG_HIDDEN);
     if (it->kind == ITEM_HEADER)
         return;
 
@@ -380,7 +383,7 @@ static void grip_event(lv_event_t *e)
 
 static void set_y(void *obj, int32_t y) { lv_obj_set_y(obj, y); }
 
-static void hidden_when_done(lv_anim_t *a) { lv_obj_set_hidden(a->var, true); }
+static void hidden_when_done(lv_anim_t *a) { lv_obj_add_flag(a->var, LV_OBJ_FLAG_HIDDEN); }
 
 static void slide(int32_t from, int32_t to, bool hide_after)
 {
@@ -413,7 +416,7 @@ static void build_row(int i)
     r->row = lv_obj_create(s_list);
     lv_obj_remove_style_all(r->row);
     lv_obj_set_width(r->row, lv_pct(100));
-    lv_obj_set_scrollable(r->row, false);
+    lv_obj_clear_flag(r->row, LV_OBJ_FLAG_SCROLLABLE);
     r->name = text(r->row, &lv_font_montserrat_20, COL_TEXT);
     lv_label_set_text(r->name, it->label);
     if (it->kind == ITEM_HEADER) {
@@ -421,7 +424,7 @@ static void build_row(int i)
         lv_obj_set_style_text_font(r->name, &lv_font_montserrat_14, 0);
         lv_obj_set_style_text_color(r->name, COL_HEAD, 0);
         lv_obj_align(r->name, LV_ALIGN_BOTTOM_MID, 0, 0);
-        lv_obj_set_clickable(r->row, false);
+        lv_obj_clear_flag(r->row, LV_OBJ_FLAG_CLICKABLE);
         return;
     }
     bool tall = has_fader(it);
@@ -487,9 +490,9 @@ void menu_create(lv_obj_t *screen)
     lv_obj_set_style_radius(s_menu, LV_RADIUS_CIRCLE, 0);
     lv_obj_set_style_bg_color(s_menu, COL_FACE, 0);
     lv_obj_set_style_bg_opa(s_menu, LV_OPA_COVER, 0);
-    lv_obj_set_scrollable(s_menu, false);
+    lv_obj_clear_flag(s_menu, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_add_event_cb(s_menu, menu_gesture, LV_EVENT_GESTURE, NULL);
-    lv_obj_set_hidden(s_menu, true);
+    lv_obj_add_flag(s_menu, LV_OBJ_FLAG_HIDDEN);
 
     s_title = text(s_menu, &lv_font_montserrat_20, COL_HEAD);
     lv_obj_align(s_title, LV_ALIGN_TOP_MID, 0, 34);
@@ -520,7 +523,7 @@ void menu_create(lv_obj_t *screen)
     lv_obj_set_style_radius(bar, 4, 0);
     lv_obj_set_style_bg_color(bar, COL_DIM, 0);
     lv_obj_set_style_bg_opa(bar, LV_OPA_COVER, 0);
-    lv_obj_set_clickable(bar, false);
+    lv_obj_clear_flag(bar, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_center(bar);
 }
 
@@ -542,7 +545,7 @@ void menu_open(void)
     s_highlight = first_usable();
     for (int i = 0; i < g_menu_item_count; ++i)
         draw_row(i);
-    lv_obj_set_hidden(s_menu, false);
+    lv_obj_clear_flag(s_menu, LV_OBJ_FLAG_HIDDEN);
     lv_obj_move_foreground(s_menu);
     slide(-480, 0, false);
 }

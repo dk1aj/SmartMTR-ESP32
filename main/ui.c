@@ -155,7 +155,7 @@ static lv_obj_t *meter_arc(lv_obj_t *parent, bool top, int width, bool show_trac
     lv_obj_set_size(arc, ARC_RADIUS * 2, ARC_RADIUS * 2);
     lv_obj_center(arc);
     lv_obj_remove_style(arc, NULL, LV_PART_KNOB);
-    lv_obj_set_clickable(arc, false);
+    lv_obj_clear_flag(arc, LV_OBJ_FLAG_CLICKABLE);
     if (top) {
         lv_arc_set_bg_angles(arc, TOP_START, TOP_START + ARC_SPAN);
     } else {
@@ -240,10 +240,10 @@ static void slice_view(lv_obj_t *parent, slice_view_t *v, bool top)
     lv_obj_set_style_border_color(v->tx, COL_DIM, 0);
     lv_obj_set_style_bg_color(v->tx, COL_LEVEL, 0);
     lv_obj_set_style_pad_hor(v->tx, 4, 0);
-    lv_obj_set_clickable(v->tx, true);
+    lv_obj_add_flag(v->tx, LV_OBJ_FLAG_CLICKABLE);
     lv_obj_set_ext_click_area(v->tx, 14);
     lv_obj_add_event_cb(v->tx, tx_badge_event, LV_EVENT_SHORT_CLICKED, v);
-    lv_obj_set_hidden(v->tx, true);
+    lv_obj_add_flag(v->tx, LV_OBJ_FLAG_HIDDEN);
     v->slice = -1;
     v->meter_slice = -2;    // forces a fresh start on the first frame
     v->tx_state = -1;
@@ -267,7 +267,7 @@ static void gauge(lv_obj_t *parent, gauge_t *g, int cx, int cy, float lo, float 
     lv_obj_set_style_bg_color(dial, COL_TRACK, 0);
     lv_obj_set_style_bg_opa(dial, LV_OPA_COVER, 0);
     lv_obj_align(dial, LV_ALIGN_TOP_LEFT, cx - 29, cy - 29);
-    lv_obj_set_clickable(dial, false);
+    lv_obj_clear_flag(dial, LV_OBJ_FLAG_CLICKABLE);
 
     g->needle = lv_line_create(parent);
     lv_obj_set_style_line_width(g->needle, 3, 0);
@@ -399,8 +399,14 @@ static void show_dock(dock_view_t view)
     if (view == DOCK_SPECTRUM && !spectrum_live())
         view = DOCK_TILES;
     s_dock = view;
-    lv_obj_set_hidden(s_spectrum, view != DOCK_SPECTRUM);
-    lv_obj_set_hidden(s_tiles_box, view != DOCK_TILES);
+    if (view == DOCK_SPECTRUM)
+        lv_obj_clear_flag(s_spectrum, LV_OBJ_FLAG_HIDDEN);
+    else
+        lv_obj_add_flag(s_spectrum, LV_OBJ_FLAG_HIDDEN);
+    if (view == DOCK_TILES)
+        lv_obj_clear_flag(s_tiles_box, LV_OBJ_FLAG_HIDDEN);
+    else
+        lv_obj_add_flag(s_tiles_box, LV_OBJ_FLAG_HIDDEN);
     s_tiles_used_ms = lv_tick_get();
 }
 
@@ -491,7 +497,7 @@ static void label_axis(int low, int span)
     for (int i = 0; i < AXIS_LABELS; ++i) {
         lv_obj_t *l = s_axis[i];
         if (i >= count) {
-            lv_obj_set_hidden(l, true);
+            lv_obj_add_flag(l, LV_OBJ_FLAG_HIDDEN);
             continue;
         }
         const int hz = ticks[i];
@@ -509,7 +515,7 @@ static void label_axis(int low, int span)
         if (x > DOCK_W - 40)
             x = DOCK_W - 40;
         lv_obj_align(l, LV_ALIGN_BOTTOM_LEFT, x, -1);
-        lv_obj_set_hidden(l, false);
+        lv_obj_clear_flag(l, LV_OBJ_FLAG_HIDDEN);
     }
     ui_set_text(s_axis_unit, "Hz");
 }
@@ -529,7 +535,7 @@ static void spectrum_panel(lv_obj_t *parent)
     lv_obj_set_style_radius(s_spectrum, 12, 0);
     lv_obj_set_style_bg_color(s_spectrum, COL_TRACK, 0);
     lv_obj_set_style_bg_opa(s_spectrum, LV_OPA_COVER, 0);
-    lv_obj_set_scrollable(s_spectrum, false);
+    lv_obj_clear_flag(s_spectrum, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_add_event_cb(s_spectrum, spectrum_draw, LV_EVENT_DRAW_MAIN_END, NULL);
     lv_obj_add_event_cb(s_spectrum, spectrum_event, LV_EVENT_SHORT_CLICKED, NULL);
     // Frequency scale along the bottom; relabelled when the span changes.
@@ -537,11 +543,11 @@ static void spectrum_panel(lv_obj_t *parent)
         s_axis[i] = label(s_spectrum, &lv_font_montserrat_14, COL_TEXT, "");
         lv_obj_set_width(s_axis[i], 40);
         lv_obj_set_style_text_align(s_axis[i], LV_TEXT_ALIGN_CENTER, 0);
-        lv_obj_set_hidden(s_axis[i], true);
+        lv_obj_add_flag(s_axis[i], LV_OBJ_FLAG_HIDDEN);
     }
     s_axis_unit = label(s_spectrum, &lv_font_montserrat_14, COL_TEXT, "");
     lv_obj_align(s_axis_unit, LV_ALIGN_TOP_RIGHT, -8, 4);
-    lv_obj_set_hidden(s_spectrum, true);
+    lv_obj_add_flag(s_spectrum, LV_OBJ_FLAG_HIDDEN);
 }
 
 // New frame from the model: copy it and let peaks fall toward the bars.
@@ -606,7 +612,10 @@ static void show_tx_badge(slice_view_t *v, int state)
     if (state == v->tx_state)
         return;
     v->tx_state = state;
-    lv_obj_set_hidden(v->tx, state == TX_HIDDEN);
+    if (state == TX_HIDDEN)
+        lv_obj_add_flag(v->tx, LV_OBJ_FLAG_HIDDEN);
+    else
+        lv_obj_clear_flag(v->tx, LV_OBJ_FLAG_HIDDEN);
     lv_color_t edge = state == TX_OTHER ? COL_DIM : COL_LEVEL;
     lv_obj_set_style_border_color(v->tx, edge, 0);
     lv_obj_set_style_text_color(v->tx, state == TX_ON_AIR ? COL_TEXT : edge, 0);
@@ -814,7 +823,10 @@ static void refresh(lv_timer_t *timer)
         return;
 
     bool bound = v->link == LINK_BOUND;
-    lv_obj_set_hidden(s_status_panel, bound);
+    if (bound)
+        lv_obj_add_flag(s_status_panel, LV_OBJ_FLAG_HIDDEN);
+    else
+        lv_obj_clear_flag(s_status_panel, LV_OBJ_FLAG_HIDDEN);
     ui_set_text(s_status_label, status_text(v->link));
 
     int other = focus >= 0 ? other_slice(v, focus) : -1;
@@ -863,7 +875,7 @@ void ui_start(lv_display_t *disp)
 {
     lv_obj_t *scr = lv_display_get_screen_active(disp);
     lv_obj_set_style_bg_color(scr, lv_color_black(), 0);
-    lv_obj_set_scrollable(scr, false);
+    lv_obj_clear_flag(scr, LV_OBJ_FLAG_SCROLLABLE);
 
     lv_obj_t *face = lv_obj_create(scr);
     lv_obj_remove_style_all(face);
@@ -871,7 +883,7 @@ void ui_start(lv_display_t *disp)
     lv_obj_set_style_radius(face, LV_RADIUS_CIRCLE, 0);
     lv_obj_set_style_bg_color(face, COL_FACE, 0);
     lv_obj_set_style_bg_opa(face, LV_OPA_COVER, 0);
-    lv_obj_set_scrollable(face, false);
+    lv_obj_clear_flag(face, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_center(face);
 
     slice_view(face, &s_top, true);
@@ -884,7 +896,7 @@ void ui_start(lv_display_t *disp)
     lv_obj_remove_style_all(s_tiles_box);
     lv_obj_set_size(s_tiles_box, DOCK_W + 4, DOCK_H);
     lv_obj_align(s_tiles_box, LV_ALIGN_CENTER, 0, DOCK_Y);
-    lv_obj_set_scrollable(s_tiles_box, false);
+    lv_obj_clear_flag(s_tiles_box, LV_OBJ_FLAG_SCROLLABLE);
     tiles(s_tiles_box);
     spectrum_panel(face);
 
