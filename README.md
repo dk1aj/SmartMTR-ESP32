@@ -171,6 +171,22 @@ reset after flashing left it in download mode: tap RESET again, or run
 On Linux the applet offers to install a udev rule the first time. The rule
 needs AetherSDR with AetherKnob support (the `AETHER_KNOB` product string).
 
+## Documentation and screenshots
+
+![SmartMTR-ESP32 UI states](output/images/SmartMTR-ESP32_UI_Collage.png)
+
+The collage contains six source-derived UI states: the main tile display,
+waiting for AetherSDR, RX spectrum, menu highlight and edit states, and the TX
+spectrum with transmit status and meters. These are renderings reconstructed
+from the current UI implementation, not hardware photographs. Display
+bring-up, touch orientation, encoder counts per detent, and the meter path
+still require hardware verification.
+
+- [German user manual](docs/BEDIENUNGSANLEITUNG_DE.md) ([PDF](output/pdf/SmartMTR-ESP32_Bedienungsanleitung_DE.pdf))
+- [English user manual](docs/USER_MANUAL_EN.md) ([PDF](output/pdf/SmartMTR-ESP32_User_Manual_EN.pdf))
+- [German Quick Start](docs/QUICK_START_DE.md) ([PDF](output/pdf/SmartMTR-ESP32_Quick_Start_DE.pdf))
+- [English Quick Start](docs/QUICK_START_EN.md) ([PDF](output/pdf/SmartMTR-ESP32_Quick_Start_EN.pdf))
+
 ## Layout
 
 | Path | What |
